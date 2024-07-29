@@ -1,1 +1,0 @@
-# api-of-opendata

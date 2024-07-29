@@ -1,0 +1,836 @@
+openapi: 3.0.0
+info:
+  title: APIs Admin do Open Finance Brasil
+  description: As API's administrativas são recursos que podem ser consumidos apenas
+    pelo diretório para avaliação e controle da qualidade dos serviços fornecidos
+    pelas instituições financeiras
+  contact:
+    url: https://servicedesk.openbankingbrasil.org.br/Login.jsp?navLanguage=pt-BR
+  version: 2.0.1
+servers:
+- url: http://api.banco.com.br/open-banking/admin/v2
+tags:
+- name: Metrics
+paths:
+  /metrics:
+    get:
+      tags:
+      - Metrics
+      summary: Obtém as métricas de disponibilidade das APIs
+      description: Obtém as métricas de disponibilidade das APIs
+      operationId: getMetrics
+      parameters:
+      - name: page
+        in: query
+        description: Número da página que está sendo requisitada (o valor da primeira
+          página é 1).
+        required: false
+        style: form
+        explode: true
+        schema:
+          maximum: 2147483647
+          minimum: 1
+          type: integer
+          format: int32​
+          default: 1
+      - name: page-size
+        in: query
+        description: Quantidade total de registros por páginas.
+        required: false
+        style: form
+        explode: true
+        schema:
+          maximum: 1000
+          minimum: 1
+          type: integer
+          format: int32​
+          default: 25
+      - name: period
+        in: query
+        description: |
+          Período a ser consultado
+            * `CURRENT` - Métricas do dia atual.
+            * `ALL` - Métricas de todo o período disponível (últimos 7 dias).
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - CURRENT
+          - ALL
+      responses:
+        "200":
+          description: Dados das métricas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMetricsList'
+        "400":
+          description: "A requisição foi malformada, omitindo atributos obrigatórios,\
+            \ seja no payload ou através de atributos na URL.​"
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "404":
+          description: O recurso solicitado não existe ou não foi implementado.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "405":
+          description: O consumidor tentou acessar o recurso com um método não suportado.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "429":
+          description: "A operação foi recusada, pois muitas solicitações foram feitas\
+            \ dentro de um determinado período ou o limite global de requisições concorrentes\
+            \ foi atingido."
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "500":
+          description: Ocorreu um erro no gateway da API ou no microsserviço.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "504":
+          description: GATEWAY TIMEOUT - A requisição não foi atendida dentro do tempo
+            limite estabelecido.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "529":
+          description: "O site está sobrecarregado e a operação foi recusada, pois\
+            \ foi atingido o limite máximo de TPS global, neste momento."
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseErrorMetaSingle'
+        default:
+          description: \-
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+components:
+  schemas:
+    ResponseMetricsList:
+      required:
+      - data
+      - links
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseMetricsListData'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      example:
+        data:
+        - requestTime: 2000-01-23T04:56:07.000+00:00
+          endpoint: http://example.com/aeiou
+          rejections:
+            previousDays:
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            currentDay: 1
+          peakTps:
+            previousDays:
+            - 4
+            - 4
+            - 4
+            - 4
+            - 4
+            - 4
+            - 4
+            currentDay: 2
+          averageTps:
+            previousDays:
+            - 3
+            - 3
+            - 3
+            - 3
+            - 3
+            - 3
+            - 3
+            currentDay: 9
+          availability:
+            downtime:
+              partialDowntime: 1
+              generalDowntime: 0
+              scheduledOutage: 6
+            uptime:
+              generalUptimeRate: generalUptimeRate
+              uptimeRate: uptimeRate
+          averageResponse:
+            previousDays:
+            - 7
+            - 7
+            - 7
+            - 7
+            - 7
+            - 7
+            - 7
+            currentDay: 2
+          errors:
+            previousDays:
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            currentDay: 7
+          invocations:
+            previousDays:
+            - 5
+            - 5
+            - 5
+            - 5
+            - 5
+            - 5
+            - 5
+            currentDay: 5
+        - requestTime: 2000-01-23T04:56:07.000+00:00
+          endpoint: http://example.com/aeiou
+          rejections:
+            previousDays:
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            currentDay: 1
+          peakTps:
+            previousDays:
+            - 4
+            - 4
+            - 4
+            - 4
+            - 4
+            - 4
+            - 4
+            currentDay: 2
+          averageTps:
+            previousDays:
+            - 3
+            - 3
+            - 3
+            - 3
+            - 3
+            - 3
+            - 3
+            currentDay: 9
+          availability:
+            downtime:
+              partialDowntime: 1
+              generalDowntime: 0
+              scheduledOutage: 6
+            uptime:
+              generalUptimeRate: generalUptimeRate
+              uptimeRate: uptimeRate
+          averageResponse:
+            previousDays:
+            - 7
+            - 7
+            - 7
+            - 7
+            - 7
+            - 7
+            - 7
+            currentDay: 2
+          errors:
+            previousDays:
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            - 1
+            currentDay: 7
+          invocations:
+            previousDays:
+            - 5
+            - 5
+            - 5
+            - 5
+            - 5
+            - 5
+            - 5
+            currentDay: 5
+        meta:
+          totalRecords: 1
+          totalPages: 1
+        links:
+          next: http://example.com/aeiou
+          last: https://api.banco.com.br/open-banking/admin/v1/resource
+          prev: http://example.com/aeiou
+          self: https://api.banco.com.br/open-banking/admin/v1/resource
+          first: https://api.banco.com.br/open-banking/admin/v1/resource
+    ResponseMetricsListData:
+      required:
+      - availability
+      - averageResponse
+      - averageTps
+      - endpoint
+      - errors
+      - invocations
+      - peakTps
+      - rejections
+      - requestTime
+      type: object
+      properties:
+        endpoint:
+          maxLength: 2000
+          type: string
+          description: URL ou URI do endpoint
+          format: uri
+        requestTime:
+          maxLength: 20
+          type: string
+          description: Data e hora que as métricas foram requisitadas.
+          format: date-time
+        availability:
+          $ref: '#/components/schemas/AvailabilityMetrics'
+        invocations:
+          $ref: '#/components/schemas/InvocationMetrics'
+        averageResponse:
+          $ref: '#/components/schemas/AverageMetrics'
+        averageTps:
+          $ref: '#/components/schemas/AverageTPSMetrics'
+        peakTps:
+          $ref: '#/components/schemas/PeakTPSMetrics'
+        errors:
+          $ref: '#/components/schemas/ErrorMetrics'
+        rejections:
+          $ref: '#/components/schemas/RejectionMetrics'
+      example:
+        requestTime: 2000-01-23T04:56:07.000+00:00
+        endpoint: http://example.com/aeiou
+        rejections:
+          previousDays:
+          - 1
+          - 1
+          - 1
+          - 1
+          - 1
+          - 1
+          - 1
+          currentDay: 1
+        peakTps:
+          previousDays:
+          - 4
+          - 4
+          - 4
+          - 4
+          - 4
+          - 4
+          - 4
+          currentDay: 2
+        averageTps:
+          previousDays:
+          - 3
+          - 3
+          - 3
+          - 3
+          - 3
+          - 3
+          - 3
+          currentDay: 9
+        availability:
+          downtime:
+            partialDowntime: 1
+            generalDowntime: 0
+            scheduledOutage: 6
+          uptime:
+            generalUptimeRate: generalUptimeRate
+            uptimeRate: uptimeRate
+        averageResponse:
+          previousDays:
+          - 7
+          - 7
+          - 7
+          - 7
+          - 7
+          - 7
+          - 7
+          currentDay: 2
+        errors:
+          previousDays:
+          - 1
+          - 1
+          - 1
+          - 1
+          - 1
+          - 1
+          - 1
+          currentDay: 7
+        invocations:
+          previousDays:
+          - 5
+          - 5
+          - 5
+          - 5
+          - 5
+          - 5
+          - 5
+          currentDay: 5
+    AvailabilityMetrics:
+      required:
+      - downtime
+      - uptime
+      type: object
+      properties:
+        uptime:
+          $ref: '#/components/schemas/AvailabilityMetrics_uptime'
+        downtime:
+          $ref: '#/components/schemas/AvailabilityMetrics_downtime'
+      example:
+        downtime:
+          partialDowntime: 1
+          generalDowntime: 0
+          scheduledOutage: 6
+        uptime:
+          generalUptimeRate: generalUptimeRate
+          uptimeRate: uptimeRate
+    InvocationMetrics:
+      required:
+      - currentDay
+      - previousDays
+      type: object
+      properties:
+        currentDay:
+          type: integer
+          description: Número de chamadas no dia atual.
+        previousDays:
+          maxItems: 7
+          type: array
+          description: "Número de chamadas nos dias anteriores. O primeiro item do\
+            \ array é referente ao dia anterior ao corrente, e assim por diante. Devem\
+            \ ser retornados no máximo sete dias caso estejam disponíveis.​"
+          items:
+            type: integer
+      example:
+        previousDays:
+        - 5
+        - 5
+        - 5
+        - 5
+        - 5
+        - 5
+        - 5
+        currentDay: 5
+    AverageMetrics:
+      required:
+      - currentDay
+      - previousDays
+      type: object
+      properties:
+        currentDay:
+          type: integer
+          description: Tempo médio de resposta em milissegundos para chamadas no dia
+            atual.
+        previousDays:
+          maxItems: 7
+          type: array
+          description: "Tempo médio de resposta em milissegundos para chamadas nos\
+            \ dias anteriores. O primeiro item do array é referente ao dia anterior\
+            \ ao corrente, e assim por diante. Devem ser retornados no máximo sete\
+            \ dias caso estejam disponíveis.​"
+          items:
+            type: integer
+      example:
+        previousDays:
+        - 7
+        - 7
+        - 7
+        - 7
+        - 7
+        - 7
+        - 7
+        currentDay: 2
+    AverageTPSMetrics:
+      required:
+      - currentDay
+      - previousDays
+      type: object
+      properties:
+        currentDay:
+          type: integer
+          description: Número médio de chamadas por segundo no dia.
+        previousDays:
+          maxItems: 7
+          type: array
+          description: "Número médio de chamadas por segundo nos dias anteriores.\
+            \ O primeiro item do array é referente ao dia anterior ao corrente, e\
+            \ assim por diante. Devem ser retornados no máximo sete dias caso estejam\
+            \ disponíveis.​"
+          items:
+            type: integer
+      example:
+        previousDays:
+        - 3
+        - 3
+        - 3
+        - 3
+        - 3
+        - 3
+        - 3
+        currentDay: 9
+    PeakTPSMetrics:
+      required:
+      - currentDay
+      - previousDays
+      type: object
+      properties:
+        currentDay:
+          type: integer
+          description: Pico de chamadas por segundo no dia.
+        previousDays:
+          maxItems: 7
+          type: array
+          description: "Pico de chamadas por segundo nos dias anteriores. O primeiro\
+            \ item do array é referente ao dia anterior ao corrente, e assim por diante.\
+            \ Devem ser retornados no máximo sete dias caso estejam disponíveis."
+          items:
+            type: integer
+      example:
+        previousDays:
+        - 4
+        - 4
+        - 4
+        - 4
+        - 4
+        - 4
+        - 4
+        currentDay: 2
+    ErrorMetrics:
+      required:
+      - currentDay
+      - previousDays
+      type: object
+      properties:
+        currentDay:
+          type: integer
+          description: Número de chamadas com erro no dia atual.
+        previousDays:
+          maxItems: 7
+          type: array
+          description: "Número de chamadas com erro nos dias anteriores. O primeiro\
+            \ item do array é referente ao dia anterior ao corrente, e assim por diante.\
+            \ Devem ser retornados no máximo sete dias caso estejam disponíveis."
+          items:
+            type: integer
+      example:
+        previousDays:
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        currentDay: 7
+    RejectionMetrics:
+      required:
+      - currentDay
+      - previousDays
+      type: object
+      properties:
+        currentDay:
+          type: integer
+          description: Número de chamadas rejeitadas no dia atual.
+        previousDays:
+          maxItems: 7
+          type: array
+          description: "Número de chamadas rejeitadas nos dias anteriores. O primeiro\
+            \ item do array é referente ao dia anterior ao corrente, e assim por diante.\
+            \ Devem ser retornados no máximo sete dias caso estejam disponíveis.​"
+          items:
+            type: integer
+      example:
+        previousDays:
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        currentDay: 1
+    Links:
+      type: object
+      properties:
+        self:
+          maxLength: 2000
+          type: string
+          description: URL da página atualmente requisitada
+          format: url
+          example: https://api.banco.com.br/open-banking/admin/v1/resource
+        first:
+          maxLength: 2000
+          type: string
+          description: URL da primeira página de registros
+          format: url
+          example: https://api.banco.com.br/open-banking/admin/v1/resource
+        prev:
+          maxLength: 2000
+          type: string
+          description: URL da página anterior de registros
+          format: url
+        next:
+          maxLength: 2000
+          type: string
+          description: URL da próxima página de registros
+          format: url
+        last:
+          maxLength: 2000
+          type: string
+          description: URL da última página de registros
+          format: url
+          example: https://api.banco.com.br/open-banking/admin/v1/resource
+      example:
+        next: http://example.com/aeiou
+        last: https://api.banco.com.br/open-banking/admin/v1/resource
+        prev: http://example.com/aeiou
+        self: https://api.banco.com.br/open-banking/admin/v1/resource
+        first: https://api.banco.com.br/open-banking/admin/v1/resource
+    Meta:
+      required:
+      - totalPages
+      - totalRecords
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Total de registros encontrados
+          example: 1
+        totalPages:
+          type: integer
+          description: Total de páginas para os registros encontrados
+          example: 1
+      example:
+        totalRecords: 1
+        totalPages: 1
+    ResponseErrorMetaSingle:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          maxItems: 13
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseErrorMetaSingle_errors'
+        meta:
+          $ref: '#/components/schemas/ResponseErrorMetaSingle_meta'
+    ResponseError:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          maxItems: 13
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseErrorMetaSingle_errors'
+        meta:
+          $ref: '#/components/schemas/ResponseError_meta'
+    AvailabilityMetrics_uptime:
+      required:
+      - generalUptimeRate
+      - uptimeRate
+      type: object
+      properties:
+        generalUptimeRate:
+          maxLength: 8
+          minLength: 8
+          pattern: "^\\d{1}\\.\\d{6}$"
+          type: string
+          description: Taxa de disponibilidade (considerando todos os serviços ativos
+            ao mesmo tempo).
+        uptimeRate:
+          maxLength: 8
+          minLength: 8
+          pattern: "^\\d{1}\\.\\d{6}$"
+          type: string
+          description: Taxa de disponibilidade do endpoint.
+      example:
+        generalUptimeRate: generalUptimeRate
+        uptimeRate: uptimeRate
+    AvailabilityMetrics_downtime:
+      required:
+      - generalDowntime
+      - partialDowntime
+      - scheduledOutage
+      type: object
+      properties:
+        generalDowntime:
+          type: integer
+          description: Quantidade de segundos de downtime (considerando qualquer api
+            em downtime).
+        scheduledOutage:
+          type: integer
+          description: Quantidade de segundos de indisponibilidade agendada.
+        partialDowntime:
+          type: integer
+          description: Quantidade de segundos de indisponibilidade do endpoint.
+      example:
+        partialDowntime: 1
+        generalDowntime: 0
+        scheduledOutage: 6
+    ResponseErrorMetaSingle_errors:
+      required:
+      - code
+      - detail
+      - title
+      type: object
+      properties:
+        code:
+          maxLength: 255
+          pattern: "[\\w\\W\\s]*"
+          type: string
+          description: Código de erro específico do endpoint
+        title:
+          maxLength: 255
+          pattern: "[\\w\\W\\s]*"
+          type: string
+          description: Título legível por humanos deste erro específico
+        detail:
+          maxLength: 2048
+          pattern: "[\\w\\W\\s]*"
+          type: string
+          description: Descrição legível por humanos deste erro específico
+    ResponseErrorMetaSingle_meta:
+      required:
+      - requestDateTime
+      type: object
+      properties:
+        requestDateTime:
+          maxLength: 20
+          type: string
+          description: "Data e hora da consulta, conforme especificação RFC-3339,\
+            \ formato UTC."
+          format: date-time
+          example: 2021-05-21T08:30:00Z
+      description: Meta informações referente à API requisitada.
+    ResponseError_meta:
+      required:
+      - totalPages
+      - totalRecords
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Número total de registros no resultado
+          format: int32
+          example: 1
+        totalPages:
+          type: integer
+          description: Número total de páginas no resultado
+          format: int32
+          example: 1
+      description: Meta informações referente à API requisitada.
+  responses:
+    BadRequest:
+      description: "A requisição foi malformada, omitindo atributos obrigatórios,\
+        \ seja no payload ou através de atributos na URL.​"
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    NotFound:
+      description: O recurso solicitado não existe ou não foi implementado.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    MethodNotAllowed:
+      description: O consumidor tentou acessar o recurso com um método não suportado.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    TooManyRequests:
+      description: "A operação foi recusada, pois muitas solicitações foram feitas\
+        \ dentro de um determinado período ou o limite global de requisições concorrentes\
+        \ foi atingido."
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    InternalServerError:
+      description: Ocorreu um erro no gateway da API ou no microsserviço.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    GatewayTimeout:
+      description: GATEWAY TIMEOUT - A requisição não foi atendida dentro do tempo
+        limite estabelecido.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    SiteIsOverloaded:
+      description: "O site está sobrecarregado e a operação foi recusada, pois foi\
+        \ atingido o limite máximo de TPS global, neste momento."
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseErrorMetaSingle'
+    Default:
+      description: \-
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Número da página que está sendo requisitada (o valor da primeira
+        página é 1).
+      required: false
+      style: form
+      explode: true
+      schema:
+        maximum: 2147483647
+        minimum: 1
+        type: integer
+        format: int32​
+        default: 1
+    pageSize:
+      name: page-size
+      in: query
+      description: Quantidade total de registros por páginas.
+      required: false
+      style: form
+      explode: true
+      schema:
+        maximum: 1000
+        minimum: 1
+        type: integer
+        format: int32​
+        default: 25
