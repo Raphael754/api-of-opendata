@@ -19,7 +19,7 @@ import (
 	//
 	//    sw "github.com/myname/myrepo/go"
 	//
-	sw "./go"
+	sw ".github.com/Raphael754/api-of-opendata/go"
 )
 
 func main() {
